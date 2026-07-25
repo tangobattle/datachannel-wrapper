@@ -136,18 +136,20 @@ pub struct PeerConnection {
     data_channel_rx: tokio::sync::mpsc::Receiver<DataChannel>,
 }
 
-/// Hand a callback's payload to its mpsc channel without ever panicking.
+/// Hand one event to the consumer from inside a callback.
 ///
-/// The native backend can fire callbacks **synchronously from the peer
-/// connection's destructor**, and that destructor may run on a thread that's
-/// actively driving the Tokio runtime — exactly what happens when the in-match
-/// reconnect coordinator drops the old connection before rebuilding. There,
-/// `blocking_send` panics ("cannot block the current thread from within a
-/// runtime"), and because the panic would have to unwind across the C
-/// callback frame, it can't — the process aborts instead. So inside
-/// a runtime fall back to the non-blocking `try_send` (dropping the event is
-/// fine: a destructor-fired event is teardown noise); only block when we're
-/// genuinely off-runtime, where blocking is both safe and lossless.
+/// Natively the callback comes off libdatachannel's own threads, where
+/// blocking is the right answer — it applies backpressure and loses
+/// nothing — except when the callback fires synchronously from the
+/// destructor on a runtime thread, where blocking would abort. So: block
+/// only when genuinely off-runtime.
+///
+/// A browser callback runs on the one thread there is, where blocking is
+/// not merely unwise but fatal (`condvar wait not supported`), and there
+/// is no runtime to detect. It gets a roomy queue and a non-blocking send
+/// instead; overflowing it would mean the consumer stopped draining
+/// entirely, so it's reported rather than silently swallowed.
+#[cfg(not(target_arch = "wasm32"))]
 fn deliver<T>(tx: &tokio::sync::mpsc::Sender<T>, msg: T) {
     match tokio::runtime::Handle::try_current() {
         Ok(_) => {
@@ -159,12 +161,24 @@ fn deliver<T>(tx: &tokio::sync::mpsc::Sender<T>, msg: T) {
     }
 }
 
+#[cfg(target_arch = "wasm32")]
+fn deliver<T>(tx: &tokio::sync::mpsc::Sender<T>, msg: T) {
+    if tx.try_send(msg).is_err() {
+        log::error!("datachannel: dropped an event — the consumer isn't draining");
+    }
+}
+
 impl PeerConnection {
     pub fn new(
         config: RtcConfig,
     ) -> Result<(Self, tokio::sync::mpsc::Receiver<PeerConnectionEvent>), std::io::Error> {
-        let (event_tx, event_rx) = tokio::sync::mpsc::channel(1);
-        let (data_channel_tx, data_channel_rx) = tokio::sync::mpsc::channel(1);
+        // Natively depth 1: `deliver` blocks on a full queue, which is the
+        // backpressure. A browser can't block, so it buffers instead — deep
+        // enough to hold a whole ICE gathering burst while the consumer is
+        // between awaits.
+        let depth = if cfg!(target_arch = "wasm32") { 64 } else { 1 };
+        let (event_tx, event_rx) = tokio::sync::mpsc::channel(depth);
+        let (data_channel_tx, data_channel_rx) = tokio::sync::mpsc::channel(depth);
 
         let mut facade_config = datachannel_facade::Configuration::new();
         facade_config.ice_servers = config.ice_servers;
