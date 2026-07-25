@@ -181,14 +181,18 @@ impl PeerConnection {
             facade_config
                 .set_disable_fingerprint_verification(config.disable_fingerprint_verification);
         }
+        // `disable_auto_negotiation` isn't in this list: a browser only
+        // ever negotiates when told to, so asking for manual negotiation
+        // is asking for what it already does. Asking to *keep* automatic
+        // negotiation is the unrepresentable one.
         #[cfg(target_arch = "wasm32")]
         if config.disable_fingerprint_verification
-            || config.disable_auto_negotiation
+            || !config.disable_auto_negotiation
             || config.port_range.is_some()
         {
             return Err(std::io::Error::new(
                 std::io::ErrorKind::Unsupported,
-                "pinned ports, manual negotiation and disabled fingerprint verification are native-only",
+                "pinned ports, automatic negotiation and disabled fingerprint verification are native-only",
             ));
         }
 
