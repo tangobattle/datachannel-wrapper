@@ -5,6 +5,11 @@ edition = "2021"
 license = "MPL-2.0"
 
 [dependencies]
-libdatachannel = { git = "https://github.com/tangobattle/libdatachannel-rs", features = ["vendored"] }
+# The cross-platform data-channel API. This crate adds only the async
+# shape on top; which backend is underneath is the facade's business.
+datachannel-facade = { git = "https://github.com/tangobattle/datachannel-facade" }
 log = "0.4"
-tokio = { version = "1", features = ["full"] }
+# Only the channel primitives and `Handle::try_current` (see `deliver`).
+# Emphatically not "full": that pulls tokio's net stack, and mio has no
+# wasm32 support.
+tokio = { version = "1", default-features = false, features = ["sync", "rt"] }

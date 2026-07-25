@@ -1,0 +1,45 @@
+DEBUG: all keys: APPLINKDIR, BINDIR, CMAKECONFIGDIR, COMMENT, ENGINESDIR, INCLUDEDIR, LDLIBS, LIBDIR, MODULESDIR, PKGCONFIGDIR, PREFIX, VERSION, libdir
+DEBUG: LIBDIR = lib, libdir = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib => LIBDIR = lib
+No value given for COMMENT
+DEBUG: PREFIX = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install => PREFIX = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install
+DEBUG: libdir = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib => libdir = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib
+DEBUG: BINDIR = bin => BINDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/bin, BINDIR_REL_PREFIX = bin
+DEBUG: LIBDIR = lib => LIBDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib, LIBDIR_REL_PREFIX = lib
+DEBUG: INCLUDEDIR = include => INCLUDEDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/include, INCLUDEDIR_REL_PREFIX = include
+DEBUG: APPLINKDIR = include/openssl => APPLINKDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/include/openssl, APPLINKDIR_REL_PREFIX = include/openssl
+DEBUG: ENGINESDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib/engines-3 => ENGINESDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib/engines-3, ENGINESDIR_REL_LIBDIR = engines-3
+DEBUG: MODULESDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib/ossl-modules => MODULESDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib/ossl-modules, MODULESDIR_REL_LIBDIR = ossl-modules
+DEBUG: PKGCONFIGDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib/pkgconfig => PKGCONFIGDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib/pkgconfig, PKGCONFIGDIR_REL_LIBDIR = pkgconfig
+DEBUG: CMAKECONFIGDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib/cmake/OpenSSL => CMAKECONFIGDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install/lib/cmake/OpenSSL, CMAKECONFIGDIR_REL_LIBDIR = cmake/OpenSSL
+Use of uninitialized value in concatenation (.) or string at util/mkinstallvars.pl line 137.
+DEBUG: all keys: APPLINKDIR, BINDIR, CMAKECONFIGDIR, COMMENT, ENGINESDIR, INCLUDEDIR, LDLIBS, LIBDIR, MODULESDIR, PKGCONFIGDIR, PREFIX, VERSION, libdir
+Use of uninitialized value in concatenation (.) or string at util/mkinstallvars.pl line 55.
+DEBUG: LIBDIR = , libdir =  => Use of uninitialized value in concatenation (.) or string at util/mkinstallvars.pl line 57.
+LIBDIR = 
+No value given for CMAKECONFIGDIR
+No value given for PKGCONFIGDIR
+No value given for libdir
+DEBUG: PREFIX = . => PREFIX = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src
+Use of uninitialized value in concatenation (.) or string at util/mkinstallvars.pl line 72.
+DEBUG: libdir =  => Use of uninitialized value in concatenation (.) or string at util/mkinstallvars.pl line 75.
+libdir = 
+DEBUG: BINDIR = apps => BINDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src/apps, BINDIR_REL_PREFIX = apps
+DEBUG: LIBDIR = Use of uninitialized value in print at util/mkinstallvars.pl line 91.
+ => Use of uninitialized value in concatenation (.) or string at util/mkinstallvars.pl line 108.
+LIBDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src, LIBDIR_REL_PREFIX = 
+DEBUG: INCLUDEDIR = [ include, ./include ] => INCLUDEDIR = [ /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src/include, /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src/include ], INCLUDEDIR_REL_PREFIX = [ include, ./include ]
+DEBUG: APPLINKDIR = ms => APPLINKDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src/ms, APPLINKDIR_REL_PREFIX = ms
+DEBUG: ENGINESDIR = engines => ENGINESDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src/engines, ENGINESDIR_REL_LIBDIR = engines
+DEBUG: MODULESDIR = providers => MODULESDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src/providers, MODULESDIR_REL_LIBDIR = providers
+DEBUG: PKGCONFIGDIR = . => PKGCONFIGDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src, PKGCONFIGDIR_REL_LIBDIR = .
+DEBUG: CMAKECONFIGDIR = . => CMAKECONFIGDIR = /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/build/src, CMAKECONFIGDIR_REL_LIBDIR = .
+Use of uninitialized value in join or string at util/mkinstallvars.pl line 157.
+running: cd "/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build" && CMAKE_PREFIX_PATH="" LC_ALL="C" "cmake" "/Users/tony/.cargo/git/checkouts/libdatachannel-rs-6d40a6a5d101a593/ac727a9/libdatachannel-sys/libdatachannel" "-B" "/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build" "-DCMAKE_OSX_ARCHITECTURES=arm64" "-DNO_WEBSOCKET=ON" "-DNO_EXAMPLES=ON" "-DNO_MEDIA=ON" "-DNO_TESTS=ON" "-DOPENSSL_ROOT_DIR=/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/openssl-build/install" "-DOPENSSL_USE_STATIC_LIBS=TRUE" "-DCMAKE_INSTALL_PREFIX=/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out" "-DCMAKE_C_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.2 -w" "-DCMAKE_C_COMPILER=/usr/bin/cc" "-DCMAKE_CXX_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.2 -w" "-DCMAKE_CXX_COMPILER=/usr/bin/c++" "-DCMAKE_ASM_FLAGS= -ffunction-sections -fdata-sections -fPIC --target=arm64-apple-macosx -mmacosx-version-min=26.2 -w" "-DCMAKE_ASM_COMPILER=/usr/bin/cc" "-DCMAKE_BUILD_TYPE=Debug"
+CMake Warning:
+  Manually-specified variables were not used by the project:
+
+    CMAKE_ASM_COMPILER
+    CMAKE_ASM_FLAGS
+
+
+running: cd "/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build" && LC_ALL="C" "cmake" "--build" "/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build" "--target" "datachannel-static" "--config" "Debug" "--parallel" "10"

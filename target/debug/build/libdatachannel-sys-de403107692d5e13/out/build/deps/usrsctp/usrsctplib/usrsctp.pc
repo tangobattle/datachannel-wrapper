@@ -1,0 +1,13 @@
+prefix=/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out
+exec_prefix=/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out
+libdir=/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/lib
+includedir=/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/include
+
+Name: usrsctp
+Description: SCTP implementation
+URL: https://github.com/sctplab/usrsctp
+Version: 0.9.5.0
+Requires: 
+Libs: -L${libdir} -lusrsctp
+Libs.private: -lpthread
+Cflags: -I${includedir} 

@@ -1,0 +1,1 @@
+{"rustc":2244234478066421979,"features":"","declared_features":"","target":0,"profile":0,"path":0,"deps":[[6545091685033313457,"build_script_build",false,9877439521972190283]],"local":[{"RerunIfChanged":{"output":"debug/build/parking_lot_core-9d924b4f7ca8f94d/output","paths":["build.rs"]}}],"rustflags":["-L","/opt/homebrew/lib"],"config":0,"compile_kind":0}

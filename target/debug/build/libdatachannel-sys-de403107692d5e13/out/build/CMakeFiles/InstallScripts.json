@@ -1,0 +1,11 @@
+{
+	"InstallScripts" : 
+	[
+		"/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build/cmake_install.cmake",
+		"/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build/deps/plog/cmake_install.cmake",
+		"/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build/deps/usrsctp/cmake_install.cmake",
+		"/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build/deps/usrsctp/usrsctplib/cmake_install.cmake",
+		"/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/libdatachannel-sys-de403107692d5e13/out/build/deps/libjuice/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

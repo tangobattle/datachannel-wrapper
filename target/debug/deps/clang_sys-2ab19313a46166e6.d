@@ -1,0 +1,14 @@
+/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/deps/clang_sys-2ab19313a46166e6.d: /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/lib.rs /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/support.rs /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/link.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/macros.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/common.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/dynamic.rs
+
+/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/deps/libclang_sys-2ab19313a46166e6.rlib: /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/lib.rs /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/support.rs /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/link.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/macros.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/common.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/dynamic.rs
+
+/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/deps/libclang_sys-2ab19313a46166e6.rmeta: /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/lib.rs /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/support.rs /Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/link.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/macros.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/common.rs /Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/dynamic.rs
+
+/Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/lib.rs:
+/Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/support.rs:
+/Users/tony/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/clang-sys-1.8.1/src/link.rs:
+/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/macros.rs:
+/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/common.rs:
+/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out/dynamic.rs:
+
+# env-dep:OUT_DIR=/Users/tony/Documents/Programming/datachannel-wrapper/target/debug/build/clang-sys-65bf3daca7ceedd9/out
