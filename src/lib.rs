@@ -133,52 +133,27 @@ fn error_to_io(err: datachannel_facade::Error) -> std::io::Error {
 
 pub struct PeerConnection {
     inner: datachannel_facade::PeerConnection,
-    data_channel_rx: tokio::sync::mpsc::Receiver<DataChannel>,
-}
-
-/// Hand one event to the consumer from inside a callback.
-///
-/// Natively the callback comes off libdatachannel's own threads, where
-/// blocking is the right answer — it applies backpressure and loses
-/// nothing — except when the callback fires synchronously from the
-/// destructor on a runtime thread, where blocking would abort. So: block
-/// only when genuinely off-runtime.
-///
-/// A browser callback runs on the one thread there is, where blocking is
-/// not merely unwise but fatal (`condvar wait not supported`), and there
-/// is no runtime to detect. It gets a roomy queue and a non-blocking send
-/// instead; overflowing it would mean the consumer stopped draining
-/// entirely, so it's reported rather than silently swallowed.
-#[cfg(not(target_arch = "wasm32"))]
-fn deliver<T>(tx: &tokio::sync::mpsc::Sender<T>, msg: T) {
-    match tokio::runtime::Handle::try_current() {
-        Ok(_) => {
-            let _ = tx.try_send(msg);
-        }
-        Err(_) => {
-            let _ = tx.blocking_send(msg);
-        }
-    }
-}
-
-#[cfg(target_arch = "wasm32")]
-fn deliver<T>(tx: &tokio::sync::mpsc::Sender<T>, msg: T) {
-    if tx.try_send(msg).is_err() {
-        log::error!("datachannel: dropped an event — the consumer isn't draining");
-    }
+    data_channel_rx: futures::channel::mpsc::UnboundedReceiver<DataChannel>,
 }
 
 impl PeerConnection {
     pub fn new(
         config: RtcConfig,
-    ) -> Result<(Self, tokio::sync::mpsc::Receiver<PeerConnectionEvent>), std::io::Error> {
-        // Natively depth 1: `deliver` blocks on a full queue, which is the
-        // backpressure. A browser can't block, so it buffers instead — deep
-        // enough to hold a whole ICE gathering burst while the consumer is
-        // between awaits.
-        let depth = if cfg!(target_arch = "wasm32") { 64 } else { 1 };
-        let (event_tx, event_rx) = tokio::sync::mpsc::channel(depth);
-        let (data_channel_tx, data_channel_rx) = tokio::sync::mpsc::channel(depth);
+    ) -> Result<
+        (
+            Self,
+            futures::channel::mpsc::UnboundedReceiver<PeerConnectionEvent>,
+        ),
+        std::io::Error,
+    > {
+        // Unbounded, because every producer here is a callback that cannot
+        // wait: libdatachannel fires them from its network threads (and, on
+        // teardown, from a destructor that may already be on a runtime
+        // thread), and a browser fires them on the one thread it has, where
+        // blocking is fatal rather than merely rude. The queues are shallow
+        // in practice — an ICE gathering burst, then nothing.
+        let (event_tx, event_rx) = futures::channel::mpsc::unbounded();
+        let (data_channel_tx, data_channel_rx) = futures::channel::mpsc::unbounded();
 
         let mut facade_config = datachannel_facade::Configuration::new();
         facade_config.ice_servers = config.ice_servers;
@@ -213,52 +188,45 @@ impl PeerConnection {
         let mut inner =
             datachannel_facade::PeerConnection::new(facade_config).map_err(error_to_io)?;
 
-        // Every callback delivers through `deliver` (not raw `blocking_send`):
-        // any of them can fire synchronously from the destructor on a runtime
-        // thread, where a blocking send would abort the process. See `deliver`.
         inner.set_on_local_description(Some({
             let event_tx = event_tx.clone();
             move |sdp: &str, type_: SdpType| {
-                deliver(
-                    &event_tx,
-                    PeerConnectionEvent::SessionDescription(SessionDescription {
+                let _ = event_tx.unbounded_send(PeerConnectionEvent::SessionDescription(
+                    SessionDescription {
                         sdp_type: type_,
                         sdp: sdp.to_owned(),
-                    }),
-                );
+                    },
+                ));
             }
         }));
 
         inner.set_on_local_candidate(Some({
             let event_tx = event_tx.clone();
             move |cand: &str| {
-                deliver(
-                    &event_tx,
-                    PeerConnectionEvent::IceCandidate(IceCandidate {
-                        candidate: cand.to_owned(),
-                    }),
-                );
+                let _ = event_tx.unbounded_send(PeerConnectionEvent::IceCandidate(IceCandidate {
+                    candidate: cand.to_owned(),
+                }));
             }
         }));
 
         inner.set_on_state_change(Some({
             let event_tx = event_tx.clone();
             move |state: ConnectionState| {
-                deliver(&event_tx, PeerConnectionEvent::ConnectionStateChange(state));
+                let _ = event_tx.unbounded_send(PeerConnectionEvent::ConnectionStateChange(state));
             }
         }));
 
         inner.set_on_gathering_state_change(Some({
             let event_tx = event_tx.clone();
             move |state: GatheringState| {
-                deliver(&event_tx, PeerConnectionEvent::GatheringStateChange(state));
+                let _ = event_tx.unbounded_send(PeerConnectionEvent::GatheringStateChange(state));
             }
         }));
 
         inner.set_on_data_channel(Some({
             let data_channel_tx = data_channel_tx.clone();
             move |dc: datachannel_facade::DataChannel| {
-                deliver(&data_channel_tx, DataChannel::wrap(dc));
+                let _ = data_channel_tx.unbounded_send(DataChannel::wrap(dc));
             }
         }));
 
@@ -284,7 +252,7 @@ impl PeerConnection {
     }
 
     pub async fn accept(&mut self) -> Option<DataChannel> {
-        self.data_channel_rx.recv().await
+        futures::StreamExt::next(&mut self.data_channel_rx).await
     }
 
     /// Set the local description, optionally with pinned ICE credentials.
@@ -392,6 +360,50 @@ enum DataChannelStatus {
     Error(String),
 }
 
+/// A data channel's state, shared between the callbacks that set it and
+/// the sends that wait on it.
+///
+/// Two halves, because they answer different questions: `settled` fires
+/// once, the first time the channel stops being `Pending`, and is what a
+/// send waits on; `current` is the latest value, which can move on again
+/// (an open channel closes) and is what the send then reads. A
+/// `watch`-style channel would fold them into one at the cost of a
+/// runtime-flavoured dependency this crate no longer needs.
+#[derive(Clone)]
+struct Status {
+    settled: futures::future::Shared<futures::channel::oneshot::Receiver<()>>,
+    /// Taken by whichever callback settles it first.
+    settle: std::sync::Arc<std::sync::Mutex<Option<futures::channel::oneshot::Sender<()>>>>,
+    current: std::sync::Arc<std::sync::Mutex<DataChannelStatus>>,
+}
+
+impl Status {
+    fn new() -> Self {
+        let (settle, settled) = futures::channel::oneshot::channel();
+        Self {
+            settled: futures::FutureExt::shared(settled),
+            settle: std::sync::Arc::new(std::sync::Mutex::new(Some(settle))),
+            current: std::sync::Arc::new(std::sync::Mutex::new(DataChannelStatus::Pending)),
+        }
+    }
+
+    fn set(&self, status: DataChannelStatus) {
+        *self.current.lock().unwrap() = status;
+        if let Some(settle) = self.settle.lock().unwrap().take() {
+            let _ = settle.send(());
+        }
+    }
+
+    /// The state once the channel has stopped being `Pending`. A dropped
+    /// latch means the channel went away before it ever opened.
+    async fn settled(&self) -> DataChannelStatus {
+        if self.settled.clone().await.is_err() {
+            return DataChannelStatus::Closed;
+        }
+        self.current.lock().unwrap().clone()
+    }
+}
+
 pub struct DataChannel {
     sender: DataChannelSender,
     receiver: DataChannelReceiver,
@@ -402,37 +414,31 @@ impl DataChannel {
     /// split it into a sender/receiver pair. Shared by `create_data_channel`
     /// (local) and the `on_data_channel` callback (remote-opened).
     fn wrap(mut inner: datachannel_facade::DataChannel) -> Self {
-        let (status_tx, status_rx) = tokio::sync::watch::channel(DataChannelStatus::Pending);
-        // `watch::Sender` isn't `Clone`, so share it across the callbacks via Arc.
-        let status_tx = std::sync::Arc::new(status_tx);
+        let status = Status::new();
 
-        // Capacity-1 bounded channel: `blocking_send` on the network thread
-        // applies backpressure when the consumer falls behind. Wrapped in an
+        // Unbounded for the same reason the peer connection's queues are:
+        // `on_message` is a callback with nowhere to wait. Wrapped in an
         // Option so `on_closed` can drop the sender and signal EOF to the
         // receiver even while the channel object is still alive.
-        let (message_tx, message_rx) = tokio::sync::mpsc::channel::<Vec<u8>>(1);
+        let (message_tx, message_rx) = futures::channel::mpsc::unbounded::<Vec<u8>>();
         let message_tx = std::sync::Arc::new(std::sync::Mutex::new(Some(message_tx)));
 
         inner.set_on_open(Some({
-            let status_tx = status_tx.clone();
-            move || {
-                let _ = status_tx.send(DataChannelStatus::Open);
-            }
+            let status = status.clone();
+            move || status.set(DataChannelStatus::Open)
         }));
 
         inner.set_on_error(Some({
-            let status_tx = status_tx.clone();
-            move |err: &str| {
-                let _ = status_tx.send(DataChannelStatus::Error(err.to_owned()));
-            }
+            let status = status.clone();
+            move |err: &str| status.set(DataChannelStatus::Error(err.to_owned()))
         }));
 
         inner.set_on_closed(Some({
-            let status_tx = status_tx.clone();
+            let status = status.clone();
             let message_tx = message_tx.clone();
             move || {
-                let _ = status_tx.send(DataChannelStatus::Closed);
-                // Drop the sender so a blocked/idle `receive()` observes EOF.
+                status.set(DataChannelStatus::Closed);
+                // Drop the sender so an idle `receive()` observes EOF.
                 *message_tx.lock().unwrap() = None;
             }
         }));
@@ -440,17 +446,14 @@ impl DataChannel {
         inner.set_on_message(Some({
             let message_tx = message_tx.clone();
             move |msg: &[u8]| {
-                // Clone the sender out from under the lock so we never hold it
-                // across a (potentially blocking) send.
-                let tx = message_tx.lock().unwrap().clone();
-                if let Some(tx) = tx {
-                    let _ = tx.blocking_send(msg.to_vec());
+                if let Some(tx) = message_tx.lock().unwrap().as_ref() {
+                    let _ = tx.unbounded_send(msg.to_vec());
                 }
             }
         }));
 
         DataChannel {
-            sender: DataChannelSender { inner, status_rx },
+            sender: DataChannelSender { inner, status },
             receiver: DataChannelReceiver { message_rx },
         }
     }
@@ -470,24 +473,14 @@ impl DataChannel {
 
 pub struct DataChannelSender {
     inner: datachannel_facade::DataChannel,
-    status_rx: tokio::sync::watch::Receiver<DataChannelStatus>,
+    status: Status,
 }
 
 impl DataChannelSender {
     pub async fn send(&mut self, msg: &[u8]) -> Result<(), std::io::Error> {
-        // Block on the first send until the channel leaves `Pending` (opens or
-        // dies); once it's `Open` this returns immediately on every later send.
-        let status = match self
-            .status_rx
-            .wait_for(|s| !matches!(s, DataChannelStatus::Pending))
-            .await
-        {
-            Ok(s) => s.clone(),
-            // The status sender is gone, i.e. the underlying channel was dropped.
-            Err(_) => DataChannelStatus::Closed,
-        };
-
-        match status {
+        // Wait out the first send until the channel leaves `Pending` (opens
+        // or dies); once it has, this returns immediately on every later send.
+        match self.status.settled().await {
             DataChannelStatus::Open => {}
             DataChannelStatus::Error(err) => return Err(std::io::Error::other(err)),
             DataChannelStatus::Closed => {
@@ -496,7 +489,7 @@ impl DataChannelSender {
                     "not connected",
                 ))
             }
-            DataChannelStatus::Pending => unreachable!("wait_for guarantees we left Pending"),
+            DataChannelStatus::Pending => unreachable!("`settled` guarantees we left Pending"),
         }
 
         self.inner.send(msg).map_err(error_to_io)
@@ -511,12 +504,12 @@ impl DataChannelSender {
 }
 
 pub struct DataChannelReceiver {
-    message_rx: tokio::sync::mpsc::Receiver<Vec<u8>>,
+    message_rx: futures::channel::mpsc::UnboundedReceiver<Vec<u8>>,
 }
 
 impl DataChannelReceiver {
     pub async fn receive(&mut self) -> Option<Vec<u8>> {
-        self.message_rx.recv().await
+        futures::StreamExt::next(&mut self.message_rx).await
     }
 
     pub fn unsplit(self, tx: DataChannelSender) -> DataChannel {

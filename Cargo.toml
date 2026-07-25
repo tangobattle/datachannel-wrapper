@@ -8,8 +8,8 @@ license = "MPL-2.0"
 # The cross-platform data-channel API. This crate adds only the async
 # shape on top; which backend is underneath is the facade's business.
 datachannel-facade = { git = "https://github.com/tangobattle/datachannel-facade" }
+# Every queue here is fed by a callback with nowhere to wait, so they're
+# `futures`' unbounded channels: no runtime to find, nothing that blocks,
+# and the same code on both targets.
+futures = "0.3"
 log = "0.4"
-# Only the channel primitives and `Handle::try_current` (see `deliver`).
-# Emphatically not "full": that pulls tokio's net stack, and mio has no
-# wasm32 support.
-tokio = { version = "1", default-features = false, features = ["sync", "rt"] }
