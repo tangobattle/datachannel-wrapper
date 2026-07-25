@@ -131,6 +131,10 @@ fn error_to_io(err: datachannel_facade::Error) -> std::io::Error {
     std::io::Error::other(err.to_string())
 }
 
+/// The stream of everything a [`PeerConnection`] reports: its local
+/// description, its ICE candidates, and its state changes.
+pub type EventReceiver = futures::channel::mpsc::UnboundedReceiver<PeerConnectionEvent>;
+
 pub struct PeerConnection {
     inner: datachannel_facade::PeerConnection,
     data_channel_rx: futures::channel::mpsc::UnboundedReceiver<DataChannel>,
@@ -139,13 +143,7 @@ pub struct PeerConnection {
 impl PeerConnection {
     pub fn new(
         config: RtcConfig,
-    ) -> Result<
-        (
-            Self,
-            futures::channel::mpsc::UnboundedReceiver<PeerConnectionEvent>,
-        ),
-        std::io::Error,
-    > {
+    ) -> Result<(Self, EventReceiver), std::io::Error> {
         // Unbounded, because every producer here is a callback that cannot
         // wait: libdatachannel fires them from its network threads (and, on
         // teardown, from a destructor that may already be on a runtime
