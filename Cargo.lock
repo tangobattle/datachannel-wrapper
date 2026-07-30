@@ -121,7 +121,7 @@ dependencies = [
 [[package]]
 name = "datachannel-facade"
 version = "0.1.0"
-source = "git+https://github.com/tangobattle/datachannel-facade#ef7758df4662205415631eaeaba1795f7c305a54"
+source = "git+https://github.com/tangobattle/datachannel-facade#a4e1761c1bd326bcefd351eaadda4a99d876dbbf"
 dependencies = [
  "libdatachannel",
  "log",
@@ -133,8 +133,8 @@ name = "datachannel-wrapper"
 version = "0.1.0"
 dependencies = [
  "datachannel-facade",
+ "futures",
  "log",
- "tokio",
 ]
 
 [[package]]
@@ -150,10 +150,69 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5baebc0774151f905a1a2cc41989300b1e6fbb29aff0ceffa1064fdd3088d582"
 
 [[package]]
+name = "futures"
+version = "0.3.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a88cf1f829d945f548cf8fec32c61b1f202b6d93b45848602fc02af4b12ad218"
+dependencies = [
+ "futures-channel",
+ "futures-core",
+ "futures-executor",
+ "futures-io",
+ "futures-sink",
+ "futures-task",
+ "futures-util",
+]
+
+[[package]]
+name = "futures-channel"
+version = "0.3.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "262590f4fe6afeb0bc83be1daa64e52657fe185690a958af7f3ad0e92085c5ae"
+dependencies = [
+ "futures-core",
+ "futures-sink",
+]
+
+[[package]]
 name = "futures-core"
 version = "0.3.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2cd50c473c80f6d7c3670a752354b8e569b1a7cbfdc0419ec88e5edad85e0dc7"
+
+[[package]]
+name = "futures-executor"
+version = "0.3.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6754879cc9f2c66f88c6e5c35344bb0bdb0708b0352b1201815667c7eabc7458"
+dependencies = [
+ "futures-core",
+ "futures-task",
+ "futures-util",
+]
+
+[[package]]
+name = "futures-io"
+version = "0.3.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4577ecaa3c4f96589d473f679a71b596316f6641bc350038b962a5daf0085d7a"
+
+[[package]]
+name = "futures-macro"
+version = "0.3.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2d6d3cde68c518367be28956066ddfef33813991b77a55005a69dae04bf3b10b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "futures-sink"
+version = "0.3.33"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e34418ac499d6305c2fb5ad0ed2f6ac998c5f8ca209b4510f7f94242c647e307"
 
 [[package]]
 name = "futures-task"
@@ -167,8 +226,13 @@ version = "0.3.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a77a90a256fce34da66415271e30f94ee91c57b04b8a2c042d9cf3220179deaa"
 dependencies = [
+ "futures-channel",
  "futures-core",
+ "futures-io",
+ "futures-macro",
+ "futures-sink",
  "futures-task",
+ "memchr",
  "pin-project-lite",
  "slab",
 ]
@@ -208,7 +272,7 @@ checksum = "68ab91017fe16c622486840e4c83c9a37afeff978bd239b5293d61ece587de66"
 [[package]]
 name = "libdatachannel"
 version = "0.2.0+0.24.3"
-source = "git+https://github.com/tangobattle/libdatachannel-rs#ac727a98fe064ad96dc5754af10b49086e86dbf6"
+source = "git+https://github.com/tangobattle/datachannel-facade#a4e1761c1bd326bcefd351eaadda4a99d876dbbf"
 dependencies = [
  "libdatachannel-sys",
  "log",
@@ -220,12 +284,11 @@ dependencies = [
 [[package]]
 name = "libdatachannel-sys"
 version = "0.24.3"
-source = "git+https://github.com/tangobattle/libdatachannel-rs#ac727a98fe064ad96dc5754af10b49086e86dbf6"
+source = "git+https://github.com/tangobattle/datachannel-facade#a4e1761c1bd326bcefd351eaadda4a99d876dbbf"
 dependencies = [
  "bindgen",
  "cmake",
  "cpp_build",
- "openssl-src",
 ]
 
 [[package]]
@@ -291,15 +354,6 @@ name = "once_cell"
 version = "1.21.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
-
-[[package]]
-name = "openssl-src"
-version = "300.6.1+3.6.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46eb8fb9fb3b61ce1c0f8a026c4c1a0714d3a9e138e7fbde78753ce2babc3846"
-dependencies = [
- "cc",
-]
 
 [[package]]
 name = "pin-project-lite"
@@ -426,15 +480,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tokio"
-version = "1.52.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8fc7f01b389ac15039e4dc9531aa973a135d7a4135281b12d7c1bc79fd57fffe"
-dependencies = [
- "pin-project-lite",
-]
-
-[[package]]
 name = "unicode-ident"
 version = "1.0.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -504,7 +549,7 @@ dependencies = [
 [[package]]
 name = "web-datachannel"
 version = "0.1.0"
-source = "git+https://github.com/tangobattle/datachannel-facade#ef7758df4662205415631eaeaba1795f7c305a54"
+source = "git+https://github.com/tangobattle/datachannel-facade#a4e1761c1bd326bcefd351eaadda4a99d876dbbf"
 dependencies = [
  "js-sys",
  "log",
